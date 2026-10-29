@@ -2,6 +2,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.LongStream;
@@ -13,9 +14,13 @@ public class CountSleeplessNights implements Function<List<SleepingSession>, Sle
             return new SleepAnalysisResult("Бессонных ночей", 0L);
         }
 
-        LocalDateTime firstStart = sessions.get(0).getStart();
+        List<SleepingSession> sorted = sessions.stream()
+                .sorted(Comparator.comparing(SleepingSession::getStart))
+                .toList();
+
+        LocalDateTime firstStart = sorted.getFirst().getStart();
         LocalDate firstNight = firstNightDate(firstStart);
-        LocalDate lastNight = sessions.get(sessions.size() - 1).getEnd().toLocalDate();
+        LocalDate lastNight = sorted.getLast().getEnd().toLocalDate();
 
         long totalNights = ChronoUnit.DAYS.between(firstNight, lastNight) + 1;
         if (totalNights < 0) {
@@ -24,7 +29,7 @@ public class CountSleeplessNights implements Function<List<SleepingSession>, Sle
 
         long sleepless = LongStream.range(0, totalNights)
                 .mapToObj(i -> firstNight.plusDays(i))
-                .filter(nightDate -> hasNoNightlySleep(nightDate, sessions))
+                .filter(nightDate -> hasNoNightlySleep(nightDate, sorted))
                 .count();
 
         return new SleepAnalysisResult("Бессонных ночей", sleepless);

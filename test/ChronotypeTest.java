@@ -16,6 +16,12 @@ public class ChronotypeTest {
     }
 
     @Test
+    void fallAsleepAfterMidnightAndWakeUpAtNine_isOwl() {
+        List<SleepingSession> sessions = TestData.sessions(List.of("01.10.25 01:00;01.10.25 09:00;GOOD"));
+        assertSame(Chronotype.OWL, chronotype.apply(sessions).getValue());
+    }
+
+    @Test
     void earlyFallAsleepAndEarlyWakeUp_isLark() {
         List<SleepingSession> sessions = TestData.sessions(List.of("01.10.25 21:30;02.10.25 06:00;GOOD"));
         assertSame(Chronotype.LARK, chronotype.apply(sessions).getValue());

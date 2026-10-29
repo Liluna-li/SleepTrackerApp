@@ -31,15 +31,21 @@ public class ChronotypeAnalysis implements Function<List<SleepingSession>, Sleep
     }
 
     private static Chronotype classify(SleepingSession s) {
-        LocalTime fallAsleep = s.getStart().toLocalTime();
-        LocalTime wakeUp = s.getEnd().toLocalTime();
+        int fallAsleep = minutesFromNoon(s.getStart().toLocalTime());
+        int wakeUp = minutesFromNoon(s.getEnd().toLocalTime());
 
-        if (fallAsleep.isAfter(LocalTime.of(23, 0)) && wakeUp.isAfter(LocalTime.of(9, 0))) {
+        if (fallAsleep > minutesFromNoon(LocalTime.of(23, 0)) && wakeUp >= minutesFromNoon(LocalTime.of(9, 0))) {
             return Chronotype.OWL;
         }
-        if (fallAsleep.isBefore(LocalTime.of(22, 0)) && wakeUp.isBefore(LocalTime.of(7, 0))) {
+        if (fallAsleep < minutesFromNoon(LocalTime.of(22, 0)) && wakeUp < minutesFromNoon(LocalTime.of(7, 0))) {
             return Chronotype.LARK;
         }
         return Chronotype.DOVE;
+    }
+
+    private static int minutesFromNoon(LocalTime t) {
+        int minutesOfDay = t.getHour() * 60 + t.getMinute();
+        int noonMinutes = 12 * 60;
+        return minutesOfDay < noonMinutes ? minutesOfDay + 24 * 60 : minutesOfDay;
     }
 }
